@@ -17,4 +17,10 @@ public class HelloWorld {
         return "hello world";
     }
 
+    @RequestMapping("/test1")
+    @ResponseBody
+    public String getHelloWorld1(){
+        return "hello world1";
+    }
+
 }
