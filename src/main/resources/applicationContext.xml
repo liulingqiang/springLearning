@@ -7,17 +7,6 @@
 	<import resource="activiti-custom-context.xml"/>
 	<!-- modeler需要自动注入ObjectMapper -->
 	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
-	<!-- 将多个配置文件读取到容器中，交给Spring管理 -->
-	<bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<value>classpath:db.properties</value>
-			</list>
-		</property>
-	</bean>
-
-
 
 
 </beans>
