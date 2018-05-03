@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="warn">
+    <appenders>
+        <!-- 控制台输出的配置 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %t %-5level %c - %msg%xEx%n"/>
+        </Console>
+
+        <!-- 文件输出配置 -->
+        <RollingFile name="RollingFile" fileName="logs/kiop.log" bufferedIO="true"
+                     filePattern="logs/$${date:yyyy-MM}/kiop-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %t %-5level %c - %msg%xEx%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="250MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="2"/>
+        </RollingFile>
+        <!-- kafka输出配置，调试时可以屏蔽掉
+        <Kafka name="Kafka" topic="kiop-log" syncSend="false">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %t %-5level ${env:MICRO_NAME} - ${env:HOSTNAME} - %c - %msg%xEx%n"/>
+            <Property name="bootstrap.servers">kafka-svc:9092</Property>
+        </Kafka>
+        -->
+
+        <!-- 异步输出日志，线上打包关闭console和rollingFile输出，console和rollingFile作为调试程序用-->
+        <!--<Async name="Async" bufferSize="768" >
+            <appender-ref ref="Console"/>
+            &lt;!&ndash;<AppenderRef ref="RollingFile"/>&ndash;&gt;
+            &lt;!&ndash;<AppenderRef ref="Kafka"/>&ndash;&gt;
+        </Async>-->
+    </appenders>
+    <loggers>
+        <root level="INFO">
+            <AppenderRef ref="Console"/>
+        </root>
+        <!--<Logger name="org.apache.kafka" level="INFO"/> &lt;!&ndash; avoid recursive logging &ndash;&gt;-->
+    </loggers>
+</configuration>
