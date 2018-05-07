@@ -1,25 +1,96 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <import resource="activiti-custom-context.xml"/>
+    <bean id="dbProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:db.properties"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+    <!--数据库线程池配置-->
+    <bean id="dataSourceAbstract" abstract="true"
+          class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+          destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+
+
+        <!-- <property name="filters" value="stat,log4j" />-->
+        <property name="maxWait" value="10000"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+                  value="50"/>
+
+        <!-- 以下为连接异常处理，对性能有影响，正式版可去除 -->
+        <!-- 超过时间限制是否回收 -->
+        <property name="removeAbandoned" value="true"/>
+        <!-- 超时时间；单位为秒 -->
+        <property name="removeAbandonedTimeout" value="90"/>
+        <!-- 关闭 abanded 连接时输出错误日志 -->
+        <property name="logAbandoned" value="true"/>
+
+    </bean>
+    <!-- 数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          parent="dataSourceAbstract">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
     <!-- modeler需要自动注入ObjectMapper -->
     <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 
     <!-- 扫描切点类组件 -->
 
-    <context:component-scan base-package="org.spring.aop"/>
-    <context:component-scan base-package="org.spring.log"/>
-    <context:component-scan base-package="org.spring.annotation"/>
+    <context:component-scan base-package="org.spring.aop" >
+        <context:exclude-filter type="annotation"  expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <context:component-scan base-package="org.spring.log">
+        <context:exclude-filter type="annotation"  expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <context:component-scan base-package="org.spring.annotation">
+        <context:exclude-filter type="annotation"  expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <context:component-scan base-package="org.spring.service">
+        <context:exclude-filter type="annotation"  expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="5"/>
         <property name="maxPoolSize" value="10"/>
         <property name="WaitForTasksToCompleteOnShutdown" value="true"/>
     </bean>
+
+    <!-- 事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <!-- mybatis配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mybatis/mapping/*.xml</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="MapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.spring.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+
+
 
 
 </beans>

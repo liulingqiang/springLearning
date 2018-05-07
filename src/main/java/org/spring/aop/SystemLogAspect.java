@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * 系统日志切点类
  *
- * @author linrx
+ * @author liulq
  */
 @Aspect
 @Component
@@ -89,8 +89,6 @@ public class SystemLogAspect {
         //3.再优化:通过线程池来执行日志保存
         Log log = new Log();
         threadPoolTaskExecutor.execute(new SaveLogThread(log, logService));
-
-
 
     }
 

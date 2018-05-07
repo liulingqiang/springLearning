@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.spring.dao.TransactionDao">
+    <update id="rollInMoney" parameterType="org.spring.model.Acount">
+        update BANK_ACOUNT set amount = amount - #{number} where name = #{inName};
+    </update>
+    <update id="rollOutMoney" parameterType="org.spring.model.Acount">
+        update BANK_ACOUNT set amount = amount + #{number} where name = #{outName};
+    </update>
+
+
+</mapper>
