@@ -4,11 +4,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
-@Component("annotationTest")
+@Component
 @Aspect
-public class AnnotationTest {
+public class AnnotationAspect {
     //定义切点
-    @Pointcut("execution(* *.saying(..))")
+    @Pointcut("@annotation(org.spring.annotation.SystemControllerLog)")
     public void sayings() {
     }
 
